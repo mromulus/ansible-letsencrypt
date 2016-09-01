@@ -54,7 +54,7 @@
     become: yes
 
   - name: Attempt to get the certificate using the webroot authenticator
-    command: "{{ letsencrypt_command }} -a webroot --webroot-path {{ letsencrypt_webroot_path }} certonly"
+    command: "{{ letsencrypt_command }} -d {{ item }} -a webroot --webroot-path {{ letsencrypt_webroot_path }} certonly"
     become: yes
     args:
       creates: "/etc/letsencrypt/live/{{ item }}"
@@ -63,7 +63,7 @@
     with_items: "{{ letsencrypt_cert_domains }}"
 
   - name: Attempt to get the certificate using the standalone authenticator (in case eg the webserver isn't running yet)
-    command: "{{ letsencrypt_command }} -a standalone auth"
+    command: "{{ letsencrypt_command }} -d {{ item }} -a standalone auth"
     become: yes
     args:
       creates: "/etc/letsencrypt/live/{{ item }}"
@@ -123,10 +123,10 @@
     become: yes
     with_items: "{{ letsencrypt_cert_domains }}"
 
-  - name: Fix the webroot map in the renewal file
-    ini_file: section="[webroot_map]" option={{ item }} value={{ letsencrypt_webroot_path }} dest="/etc/letsencrypt/renewal/{{ item }}.conf"
-    become: yes
-    with_items: "{{ letsencrypt_cert_domains }}"
+  # - name: Fix the webroot map in the renewal file
+  #   ini_file: section="webroot_map" option={{ item }} value={{ letsencrypt_webroot_path }} dest="/etc/letsencrypt/renewal/{{ item }}.conf"
+  #   become: yes
+  #   with_items: "{{ letsencrypt_cert_domains }}"
 
   - name: Install renewal cron
     become: yes
